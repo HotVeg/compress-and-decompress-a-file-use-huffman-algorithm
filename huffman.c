@@ -3,6 +3,7 @@
 #include <string.h>
 #include "huffman.h"
 #include "minHeap.h"
+#include "inout.h"
 
 struct _HNode{
     char data;
@@ -10,6 +11,7 @@ struct _HNode{
     struct _HNode *left;
     struct _HNode *right; 
 };
+
 
 long GetWPL2(HuffmanTree T, int depth);
 
@@ -84,4 +86,63 @@ void GetCharsetEnCode(HuffmanTree T, char charsetEncode[][CHAR_SET_SIZE], int de
 		encode[depth] = '1';	// backtracking
 		GetCharsetEnCode(T->right, charsetEncode, depth+1);
 	}
+}
+
+void DeInitCodeList(FILE* in)
+{
+	int N, i;
+
+    fread(&N, sizeof(int), 1, in);
+	codeList.codenodes = (CodeNode*)malloc(sizeof(CodeNode) * N);
+	Diagnose(codeList.codenodes, APPLY_MEMORY);
+	codeList.capacity = N;
+	codeList.size = N;
+
+	fread(codeList.codenodes, sizeof(CodeNode), N, in);
+	//for(i = 0; i < codeList.size; i++)
+	//	printf("[%c : %s\n", codeList.codenodes[i].data, codeList.codenodes[i].codeword);
+}
+
+////test
+//void InOrder(HuffmanTree T)
+//{
+//	if(T)
+//	{
+//		printf("%c\n", T->data);
+//		InOrder(T->left);
+//		InOrder(T->right);
+//	}
+//}
+
+HuffmanTree DeBuildHuffmanTree()
+{
+	HuffmanTree T, S;
+	int i;
+	char* pch;
+
+	T = MakeHuffmanNode(0, 0);
+	S = T;
+	for(i = 0; i < codeList.size; i++)
+	{
+		for(pch = codeList.codenodes[i].codeword; *pch != '\0'; pch++)
+		{
+			if(*pch == '0')
+			{
+				if(!S->left)
+					S->left = MakeHuffmanNode(0, 0);
+				 S = S->left;
+			}
+			else
+			{
+				if(!S->right)
+					S->right = MakeHuffmanNode(0, 0);
+				 S = S->right;
+			}
+		}
+		// arrived a leave
+		S->data = codeList.codenodes[i].data;
+		
+		S = T;
+	}
+	return T;
 }

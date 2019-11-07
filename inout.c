@@ -22,8 +22,14 @@ void ReadData(int argc, char **argv, int charsetFreq[], int N)
     if(argc < 2)
     {
         printf("no input file\n");
+		printf("[Usage: ./encode file]");
         exit(-1);
     }
+	else if(argc == 3)
+	{
+		strcpy(compressFilename, argv[2]);
+		strcat(compressFilename, EN_EXTENSION);
+	}
     in = fopen(argv[1], "r");
     if(in == NULL)
     {
@@ -60,7 +66,7 @@ void PrintAll(int charsetFreq[], int N)
 	putchar('\n');
 }
 
-void WriteToFile(const char* dest, const char* src, int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE])
+void Compress(const char* dest, const char* src, int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE])
 {
 	FILE* in  = NULL, *out = NULL;
 	in = fopen(src, "r");
@@ -85,7 +91,7 @@ void WriteToFile(const char* dest, const char* src, int charsetFreq[], char char
 
 
 /*
-*	FileHeader structure£º
+*	FileHeader structureï¿½ï¿½
 *	N: |charset|
 *	record_1: char data + char codeword[256]
 *	record_2
@@ -95,10 +101,7 @@ void WriteToFile(const char* dest, const char* src, int charsetFreq[], char char
 */
 void WriteFileHeader(int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE], FILE * out )
 {
-	struct{
-		char data;
-		char codeWord[CHAR_SET_SIZE];
-	}record;
+	CodeNode record;
 
 	int charsetNum, i, temp;
 
@@ -122,7 +125,7 @@ void WriteFileHeader(int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE], FIL
 		if(charsetFreq[i] > 0)
 		{
 			record.data = (char)i;
-			strcpy(record.codeWord, charsetEncode[i]);
+			strcpy(record.codeword, charsetEncode[i]);
 			fwrite(&record, sizeof(record), 1, out);
 		}
 	}
@@ -169,5 +172,21 @@ void WriteBit(char ch, FILE* out)
 		fwrite(&buffer, sizeof(buffer), 1, out);
 		cnt = 0;
 		buffer = 0;
+	}
+}
+
+void Diagnose(const void * p, int type)
+{
+	if(p == NULL)
+	{
+		if(type == OPEN_FILE)
+		{
+			printf("open file failed\n");
+		}
+		else if(type == APPLY_MEMORY)
+		{
+			printf("apply memory failed\n");
+		}
+		exit(-1);
 	}
 }
