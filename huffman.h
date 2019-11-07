@@ -2,6 +2,7 @@
     #define _HUFFMAN_H
 
 #define CHAR_SET_SIZE 256
+#define FILE_IDENTIFIER "huffman"
 
 typedef struct _HNode * HuffmanTree;
 

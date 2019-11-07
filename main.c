@@ -9,7 +9,7 @@ void PrintEnCode(int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE])
 	int i;
 	for(i = 0; i < CHAR_SET_SIZE; i++)
 	{
-		if(charsetFreq[i] != 0)
+		if(*charsetEncode[i] != NULL)
 			printf("[%c : %s]\n", i, charsetEncode[i]);
 	}
 }
@@ -33,10 +33,11 @@ int main(int argc, char *argv[])
     ReadData(argc, argv, charsetFreq, CHAR_SET_SIZE);
 	PrintAll(charsetFreq, CHAR_SET_SIZE);
 	T = BuildHuffmanTree(charsetFreq, CHAR_SET_SIZE);
-	//printf("The WPL is %ld\n", GetWPL(T));
+	printf("The WPL is %ld\n", GetWPL(T));
 	GetCharsetEnCode(T, charsetEncode, 0);
 	
 	PrintEnCode(charsetFreq, charsetEncode);
+	WriteToFile("D:\\encode.huff", argv[1], charsetFreq, charsetEncode);
 
 
     return 0;
