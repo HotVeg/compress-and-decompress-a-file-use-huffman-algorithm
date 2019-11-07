@@ -4,14 +4,16 @@
 #define CHAR_SET_SIZE 256
 
 typedef struct _HNode * HuffmanTree;
-// minHeap.c模块需要使用此结构体，故在此文件中直接将定义暴露出来
-struct _HNode{
-    char data;
-    int weight;
-    struct _HNode *left;
-    struct _HNode *right; 
-};
+
+int CmpHuffmanNode(HuffmanTree T1, HuffmanTree T2);
+
+struct _HNode * MakeHuffmanNode(int weight, char data);
 
 HuffmanTree BuildHuffmanTree(int charsetFreq[], int N);
+
+long GetWPL(HuffmanTree T);
+
+void GetCharsetEnCode(HuffmanTree T, char charsetEncode[][CHAR_SET_SIZE], int depth);
+
 
 #endif //_HUFFMAN_H

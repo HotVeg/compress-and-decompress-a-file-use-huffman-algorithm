@@ -37,21 +37,12 @@ MinHeap BuildMinHeap(int charsetFreq[], int N)
     {
         if(charsetFreq[i] > 0)
         {
-            T = MakeNewHNode(charsetFreq[i], i);
+            T = MakeHuffmanNode(charsetFreq[i], i);
             Insert(H, T);
         }
     }
 
     return H;
-}
-
-struct _HNode* MakeNewHNode(int weight, char data)
-{
-    struct _HNode * s = (struct _HNode*)malloc(sizeof(struct _HNode));
-    s->data = data;
-    s->weight = weight;
-    s->left = s->right = NULL;
-    return s;
 }
 
 ElemType DeleteMin(MinHeap H)
@@ -93,9 +84,9 @@ void AdjustDown(MinHeap H, int p)
     for(; 2 * p <= H->size; p = child)
     {
         child = 2 * p;
-        if(child < H->size && H->elems[child+1]->weight < H->elems[child]->weight)
+        if(child < H->size && CmpHuffmanNode(H->elems[child+1], H->elems[child]) < 0)
             child++;
-        if(H->elems[child]->weight < temp->weight)
+		if(CmpHuffmanNode(H->elems[child], temp))
             H->elems[p] = H->elems[child];
         else
         {
@@ -108,7 +99,7 @@ void AdjustDown(MinHeap H, int p)
 void AdjustUp(MinHeap H, int p)
 {
     ElemType temp = H->elems[p];
-    while(p > 1 && temp->weight < H->elems[p/2]->weight)
+    while(p > 1 && CmpHuffmanNode(temp, H->elems[p/2]) < 0)
     {
         H->elems[p] = H->elems[p/2];
         p /= 2;

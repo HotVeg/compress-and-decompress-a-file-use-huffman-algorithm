@@ -10,8 +10,6 @@ typedef struct _HeapNode *MinHeap;
 
 MinHeap BuildMinHeap(int charsetFreq[], int N);
 
-struct _HNode * MakeNewHNode(int weight, char data);
-
 ElemType DeleteMin(MinHeap H);
 
 void Insert(MinHeap H, ElemType T);
