@@ -30,6 +30,11 @@ void ReadData(int argc, char **argv, int charsetFreq[], int N)
 		strcpy(compressFilename, argv[2]);
 		strcat(compressFilename, EN_EXTENSION);
 	}
+	else
+	{
+		strcpy(compressFilename, "encode");
+		strcat(compressFilename, EN_EXTENSION);
+	}
     in = fopen(argv[1], "r");
     if(in == NULL)
     {

@@ -22,6 +22,12 @@ struct _CodeTable{
 }codeList;
 
 typedef struct _HNode * HuffmanTree;
+struct _HNode{
+    char data;
+    int weight;
+    struct _HNode *left;
+    struct _HNode *right; 
+};
 
 int CmpHuffmanNode(HuffmanTree T1, HuffmanTree T2);
 
@@ -36,5 +42,7 @@ void GetCharsetEnCode(HuffmanTree T, char charsetEncode[][CHAR_SET_SIZE], int de
 void DeInitCodeList(FILE* in);
 
 HuffmanTree DeBuildHuffmanTree();
+
+void DeCompress(HuffmanTree T, FILE * in, FILE * out);
 
 #endif //_HUFFMAN_H

@@ -10,7 +10,7 @@ char decompressFile[200];
 int main(int argc, char **argv)
 {
 	HuffmanTree T;
-    FILE * in, out;
+    FILE * in, * out;
 	char cmpFile[100];
     int N;
 
@@ -24,9 +24,16 @@ int main(int argc, char **argv)
         strcpy(decompressFile, argv[2]);
         strcat(decompressFile, DE_EXTENSION);
     }
-
+	else
+	{
+		strcpy(decompressFile, "a");
+        strcat(decompressFile, DE_EXTENSION);
+	}
+	
     in = fopen(argv[1], "rb");
     Diagnose(in, OPEN_FILE);
+	
+	
 	fread(&cmpFile, sizeof(FILE_IDENTIFIER), 1, in);
 	if(strcmp(cmpFile, FILE_IDENTIFIER) != 0)
 	{
@@ -35,6 +42,13 @@ int main(int argc, char **argv)
 	}
 	DeInitCodeList(in);
 	T = DeBuildHuffmanTree();
-	//DeCompress();
+	out = fopen(decompressFile, "w+");
+	Diagnose(out, OPEN_FILE);
+	DeCompress(T, in, out);
+
+
+	fclose(in);
+	fclose(out);
+
     return 0;
 }

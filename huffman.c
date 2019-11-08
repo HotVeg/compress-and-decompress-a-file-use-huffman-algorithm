@@ -5,15 +5,12 @@
 #include "minHeap.h"
 #include "inout.h"
 
-struct _HNode{
-    char data;
-    int weight;
-    struct _HNode *left;
-    struct _HNode *right; 
-};
+
 
 
 long GetWPL2(HuffmanTree T, int depth);
+
+void AddToDecodeTree(HuffmanTree T, char ch, FILE * out);
 
 
 struct _HNode * MakeHuffmanNode(int weight, char data)
@@ -93,26 +90,17 @@ void DeInitCodeList(FILE* in)
 	int N, i;
 
     fread(&N, sizeof(int), 1, in);
+	printf("Detected %d dirrerent characters\n", N);
 	codeList.codenodes = (CodeNode*)malloc(sizeof(CodeNode) * N);
 	Diagnose(codeList.codenodes, APPLY_MEMORY);
 	codeList.capacity = N;
 	codeList.size = N;
 
 	fread(codeList.codenodes, sizeof(CodeNode), N, in);
-	//for(i = 0; i < codeList.size; i++)
-	//	printf("[%c : %s\n", codeList.codenodes[i].data, codeList.codenodes[i].codeword);
+	printf("Detected the fllowing code table\n");
+	for(i = 0; i < codeList.size; i++)
+		printf("[%c : %s]\n", codeList.codenodes[i].data, codeList.codenodes[i].codeword);
 }
-
-////test
-//void InOrder(HuffmanTree T)
-//{
-//	if(T)
-//	{
-//		printf("%c\n", T->data);
-//		InOrder(T->left);
-//		InOrder(T->right);
-//	}
-//}
 
 HuffmanTree DeBuildHuffmanTree()
 {
@@ -139,10 +127,74 @@ HuffmanTree DeBuildHuffmanTree()
 				 S = S->right;
 			}
 		}
+		if(S->left || S->right)
+			printf("error debuid-codetree\n");
 		// arrived a leave
 		S->data = codeList.codenodes[i].data;
 		
 		S = T;
 	}
 	return T;
+}
+
+void DeCompress(HuffmanTree T, FILE * in, FILE * out)
+{
+	int paddingBits;
+	long start, end;
+	char ch;
+
+	fread(&paddingBits, sizeof(int), 1, in);
+	printf("the paddingBits = %d\n", paddingBits);
+	start = ftell(in);
+	fseek(in, -1L, SEEK_END);
+	end = ftell(in);
+	fseek(in, start - end, SEEK_CUR);
+	while(start < end)
+	{
+		fread(&ch, sizeof(ch), 1, in);
+		AddToDecodeTree(T, ch, 8, out);
+
+		start++;
+	}
+	fread(&ch, sizeof(ch), 1, in);
+	AddToDecodeTree(T, ch, 8 - paddingBits, out);
+}
+
+void AddToDecodeTree(HuffmanTree T, char ch, int validBits, FILE * out)
+{
+	static HuffmanTree S = NULL;
+	static int flag = 1;
+	char mask;
+	int i;
+	
+	if(flag)
+	{
+		S = T;
+		flag = 0;
+	}
+
+	if(!T->left && ! T->right)
+	{
+		printf("error tree\n");
+		return;
+	}
+	for(i = 1; i <= validBits; i++)
+	{
+		mask = 1;
+		mask <<= (8 - i);
+		if((ch & mask) == mask)
+		{
+			S = S->right;
+		}
+		else
+		{
+			S = S->left;
+		}
+
+		if(!S->left && !S->right)
+		{
+			fwrite(&(S->data), sizeof(S->data), 1, out);
+			S = T;
+		}
+	}
 }

@@ -58,7 +58,7 @@ ElemType DeleteMin(MinHeap H)
         temp = H->elems[1];
         H->elems[1] = H->elems[H->size--];
         AdjustDown(H, 1);
-        
+
         return temp;
     }
 }
@@ -86,7 +86,7 @@ void AdjustDown(MinHeap H, int p)
         child = 2 * p;
         if(child < H->size && CmpHuffmanNode(H->elems[child+1], H->elems[child]) < 0)
             child++;
-		if(CmpHuffmanNode(H->elems[child], temp))
+		if(CmpHuffmanNode(H->elems[child], temp) < 0)
             H->elems[p] = H->elems[child];
         else
         {
