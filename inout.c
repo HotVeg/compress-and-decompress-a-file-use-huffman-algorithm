@@ -15,37 +15,18 @@ void WriteCodeWord(const char* codes, FILE* out);
 void WriteBit(char ch, FILE* out);
 
 
-void ReadData(int argc, char **argv, int charsetFreq[], int N)
+void ReadData(const char *inputFile, unsigned int freq[], int N)
 {
     FILE *in;
-    char ch;
-    if(argc < 2)
+    unsigned char byte;
+    
+    in = fopen(inputFile, "rb");
+    Diagnose(in, OPEN_FILE);
+    fread(&byte, sizeof(byte), 1, in);
+    while(!feof(in))
     {
-        printf("no input file\n");
-		printf("[Usage: ./encode file]");
-        exit(-1);
-    }
-	else if(argc == 3)
-	{
-		strcpy(compressFilename, argv[2]);
-		strcat(compressFilename, EN_EXTENSION);
-	}
-	else
-	{
-		strcpy(compressFilename, "encode");
-		strcat(compressFilename, EN_EXTENSION);
-	}
-    in = fopen(argv[1], "r");
-    if(in == NULL)
-    {
-        printf("open file \"%s\" failed!\n", argv[1]);
-        exit(-1);
-    }
-    ch = fgetc(in);
-    while(ch != EOF)
-    {
-        charsetFreq[ch]++;
-		ch = fgetc(in);
+        freq[byte]++;
+	    fread(&byte, sizeof(byte), 1, in);
     }
 
     fclose(in);
@@ -71,10 +52,10 @@ void PrintAll(int charsetFreq[], int N)
 	putchar('\n');
 }
 
-void Compress(const char* dest, const char* src, int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE])
+void Compress(const char* dest, const char* src, unsigned int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE])
 {
 	FILE* in  = NULL, *out = NULL;
-	in = fopen(src, "r");
+	in = fopen(src, "rb");
 	if(in == NULL)
 	{
 		printf("open \"%s\" failed\n", src);
@@ -86,7 +67,6 @@ void Compress(const char* dest, const char* src, int charsetFreq[], char charset
 		printf("open \"%s\" failed\n", dest);
 		exit(-1);
 	}
-
 	WriteFileHeader(charsetFreq, charsetEncode, out);
 	WriteContent(in, out, charsetEncode);
 
@@ -96,7 +76,7 @@ void Compress(const char* dest, const char* src, int charsetFreq[], char charset
 
 
 /*
-*	FileHeader structure��
+*	FileHeader structure:
 *	N: |charset|
 *	record_1: char data + char codeword[256]
 *	record_2
@@ -140,11 +120,14 @@ void WriteFileHeader(int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE], FIL
 void WriteContent(FILE* in, FILE* out, char charsetEncode[][CHAR_SET_SIZE])
 {
 	int i;
-	char ch;
+	unsigned char byte;
 	char* p;
-	while( (ch = fgetc(in)) != EOF)
+
+	fread(&byte, sizeof(byte), 1, in);
+	while(!feof(in))
 	{
-		WriteCodeWord(charsetEncode[ch], out);
+		WriteCodeWord(charsetEncode[byte], out);
+		fread(&byte, sizeof(byte), 1, in);
 	}
 
 	for(i = 0; i < paddingBits; i++)
@@ -163,9 +146,9 @@ void WriteCodeWord(const char* codes, FILE* out)
 
 void WriteBit(char ch, FILE* out)
 {
-	static char buffer = 0;
+	static unsigned char buffer = 0;
 	static int cnt = 0;
-	char temp;
+	unsigned char temp;
 	if(ch == '1')
 	{
 		temp = 1;

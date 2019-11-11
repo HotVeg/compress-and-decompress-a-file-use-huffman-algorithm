@@ -4,42 +4,55 @@
 #include "huffman.h"
 #include "inout.h"
 
-void PrintEnCode(int charsetFreq[], char charsetEncode[][CHAR_SET_SIZE])
-{
-	int i;
-	for(i = 0; i < CHAR_SET_SIZE; i++)
-	{
-		if(*charsetEncode[i] != NULL)
-			printf("[%c : %s]\n", i, charsetEncode[i]);
-	}
-}
+#define FILENAME_LEN 100
+#define ENCODE_OPTION "-e"
+#define DECODE_OPTION "-d"
 
+char inputFile[FILENAME_LEN];
+char outputFile[FILENAME_LEN];
+
+void Help();
 
 int main(int argc, char *argv[])
 {
-
-/*
-    Record the frequency of ASCII characters.
-    Map ASCII character set to {0, 1, ..., CHAR_SET_SIZE - 1},
-    which is the array subscript.
-*/
-    int charsetFreq[CHAR_SET_SIZE];
-	char charsetEncode[CHAR_SET_SIZE][CHAR_SET_SIZE];
-	HuffmanTree T = NULL;
-
-    memset(charsetFreq, 0, sizeof(charsetFreq));
-    memset(charsetEncode, 0, sizeof(charsetEncode));
-
-    ReadData(argc, argv, charsetFreq, CHAR_SET_SIZE);
-	PrintAll(charsetFreq, CHAR_SET_SIZE);
-	T = BuildHuffmanTree(charsetFreq, CHAR_SET_SIZE);
-	printf("The WPL is %ld\n", GetWPL(T));
-	GetCharsetEnCode(T, charsetEncode, 0);
+	if(argc < 3 || argc > 4)
+	{
+		printf("Huff: wrong input\n");
+		Help();
+		exit(0);
+	}
+	strcpy(inputFile, argv[2]);
+	if(argc == 4)
+		strcpy(outputFile, argv[3]);
+	else
+	{
+		if(strcmp(argv[1], ENCODE_OPTION) == 0)
+			strcat(strcpy(outputFile, argv[2]), EN_EXTENSION);
+		else if(strcmp(argv[1], DECODE_OPTION) == 0)
+			strcat(strcpy(outputFile, argv[2]), DE_EXTENSION);
+		else
+		{
+			printf("Huff: invalid option -- \"%s\"\n", argv[1]);
+			Help();
+			exit(0);
+		}
+	}
 	
-	PrintEnCode(charsetFreq, charsetEncode);
-	WriteToFile("D:\\encode.huff", argv[1], charsetFreq, charsetEncode);
-
+	if(strcmp(argv[1], ENCODE_OPTION) == 0)
+		EnCode(inputFile, outputFile);
+	else if(strcmp(argv[1], DECODE_OPTION) == 0)
+		DeCode(inputFile, outputFile);
 
     return 0;
+}
+
+void Help()
+{
+	printf("[Usage]: Huff [OPTION] ... [INPUT FILE] ... [OUTPUT FILE](optional)\n");
+	printf("OPTION:\n");
+	printf("-e\n");
+	printf("	encode input file\n");
+	printf("-d\n");
+	printf("	decode input file\n");
 }
 
